@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsEmail, IsString } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt } from 'class-validator';
 
 export class CreateResponsableDto {
   @IsNotEmpty()
@@ -20,4 +20,8 @@ export class CreateResponsableDto {
   @IsNotEmpty()
   @IsString()
   num_telefono: string;
+
+  @IsOptional()
+  @IsInt()
+  rolId?: number;  // Campo opcional para el ID de rol
 }

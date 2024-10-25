@@ -25,6 +25,6 @@ export class Responsable {
   @OneToMany(() => AlumnoResponsable, (ar) => ar.responsable)
   alumnoResponsables: AlumnoResponsable[];
 
-  @ManyToOne(() => Rol, (rol) => rol.responsable)
+  @ManyToOne(() => Rol, (rol) => rol.responsable, { nullable: true })
   rol: Rol;
 }

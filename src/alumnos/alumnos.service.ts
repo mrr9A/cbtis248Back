@@ -4,12 +4,15 @@ import { Repository } from 'typeorm';
 import { Alumno } from 'src/alumnos/entities/alumno.entity';
 import { CreateAlumnoDto } from './dto/create-alumno.dto';
 import { UpdateAlumnoDto } from './dto/update-alumno.dto';
+import { Grupo } from 'src/grupos/entities/grupo.entity';
 
 @Injectable()
 export class AlumnosService {
   constructor(
     @InjectRepository(Alumno)
     private alumnosRepository: Repository<Alumno>,
+    @InjectRepository(Grupo)
+    private gruposRepository: Repository<Grupo>,
   ) {}
 
   async findAll(): Promise<Alumno[]> {
@@ -33,23 +36,62 @@ export class AlumnosService {
     }
   }
 
-  async create(createAlumnoDto: CreateAlumnoDto): Promise<Alumno> {
+/*   async create(createAlumnoDto: CreateAlumnoDto): Promise<Alumno> {
     try {
-      const alumno = this.alumnosRepository.create(createAlumnoDto);
+      const { grupoId, ...alumnoData } = createAlumnoDto;
+      const alumno = this.alumnosRepository.create(alumnoData);
+  
+      if (grupoId) {
+        const grupo = await this.gruposRepository.findOne({ where: { id: grupoId } });
+        if (grupo) {
+          alumno.grupo = grupo;
+        }
+      }
+  
       return await this.alumnosRepository.save(alumno);
     } catch (error) {
+      console.error('Error al crear el alumno:', error); // Imprime el error
       throw new InternalServerErrorException('Error al crear el alumno');
     }
-  }
+  } */
 
-  async update(id: number, updateAlumnoDto: UpdateAlumnoDto): Promise<Alumno> {
-    try {
-      await this.alumnosRepository.update(id, updateAlumnoDto);
-      return await this.findOne(id);
-    } catch (error) {
-      throw new InternalServerErrorException('Error al actualizar el alumno');
+    async create(createAlumnoDto: CreateAlumnoDto): Promise<Alumno> {
+      try {
+        const { grupoId, ...alumnoData } = createAlumnoDto;
+        console.log('Grupo ID recibido:', grupoId);
+        const alumno = this.alumnosRepository.create(alumnoData);
+    
+        if (grupoId) {
+          const grupo = await this.gruposRepository.findOne({ where: { id: grupoId } });
+          console.log('Grupo encontrado:', grupo);
+          if (grupo) {
+            alumno.grupo = grupo;
+          } else {
+            console.warn('El grupo no se encontró');
+          }
+        }
+    
+        return await this.alumnosRepository.save(alumno);
+      } catch (error) {
+        console.error('Error al crear el alumno:', error);
+        throw new InternalServerErrorException('Error al crear el alumno');
+      }
     }
+    
+  
+  async update(id: number, updateAlumnoDto: UpdateAlumnoDto): Promise<Alumno> {
+    const { grupoId, ...alumnoData } = updateAlumnoDto;
+    await this.alumnosRepository.update(id, alumnoData);
+    const alumno = await this.findOne(id);
+  
+    if (grupoId) {
+      const grupo = await this.gruposRepository.findOne({ where: { id: grupoId } });
+      if (grupo) alumno.grupo = grupo;
+    }
+  
+    return await this.alumnosRepository.save(alumno);
   }
+  
 
   async remove(id: number): Promise<void> {
     try {

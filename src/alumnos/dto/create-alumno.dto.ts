@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsEmail, IsString, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsString, IsOptional, IsNumber } from 'class-validator';
 
 export class CreateAlumnoDto {
   @IsNotEmpty()
@@ -28,4 +28,9 @@ export class CreateAlumnoDto {
   @IsOptional()
   @IsString()
   imagen_perfil: string;
+
+  @IsOptional()
+  @IsNumber()
+  grupoId: number;
+
 }

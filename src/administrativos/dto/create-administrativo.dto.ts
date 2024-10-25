@@ -7,19 +7,23 @@ export class CreateAdministrativoDto {
 
   @IsNotEmpty()
   @IsString()
-  apellidoPaterno: string;
+  apellido_paterno: string;
 
   @IsNotEmpty()
   @IsString()
-  apellidoMaterno: string;
+  apellido_materno: string;
 
   @IsNotEmpty()
   @IsEmail()
-  correoElectronico: string;
+  correo_electronico: string;
 
   @IsNotEmpty()
   @IsString()
-  telefono: string;
+  num_telefono: string;
+
+  @IsNotEmpty()
+  @IsString()
+  imagen_perfil: string;
 
   @IsNotEmpty()
   @IsInt()

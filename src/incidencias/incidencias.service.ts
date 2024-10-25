@@ -14,7 +14,7 @@ export class IncidenciasService {
 
   async findAll(): Promise<Incidencia[]> {
     try {
-      return await this.incidenciasRepository.find();
+      return await this.incidenciasRepository.find({ relations: ['grupo', 'tipo_incidencia'] });
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener las incidencias');
     }
