@@ -8,5 +8,6 @@ import { AlumnoResponsable } from './entities/alumno-responsable.entity';
   controllers: [AlumnoResponsableController],
   providers: [AlumnoResponsableService],
   imports: [TypeOrmModule.forFeature([AlumnoResponsable])],
+  exports: [TypeOrmModule]
 })
 export class AlumnoResponsableModule {}

@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsEmail } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt, IsArray, ArrayNotEmpty } from 'class-validator';
 
 export class UpdateResponsableDto {
   @IsOptional()
@@ -22,5 +22,12 @@ export class UpdateResponsableDto {
   num_telefono?: string;
 
   @IsOptional()
-  rolId?: number; // Campo opcional para actualizar el rol
+  @IsInt()
+  rolId?: number;
+
+  @IsOptional()
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  alumnoIds?: number[];
 }

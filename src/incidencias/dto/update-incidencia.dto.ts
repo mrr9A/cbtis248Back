@@ -1,4 +1,20 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreateIncidenciaDto } from './create-incidencia.dto';
+// update-incidencia.dto.ts
+import { IsOptional, IsString, IsInt } from 'class-validator';
 
-export class UpdateIncidenciaDto extends PartialType(CreateIncidenciaDto) {}
+export class UpdateIncidenciaDto {
+  @IsOptional()
+  @IsInt()
+  tipo_incidencia_id?: number;
+
+  @IsOptional()
+  @IsString()
+  descripcion?: string;
+
+  @IsOptional()
+  @IsInt()
+  alumno_id?: number;
+
+  @IsOptional()
+  @IsInt()
+  grupo_id?: number;
+}

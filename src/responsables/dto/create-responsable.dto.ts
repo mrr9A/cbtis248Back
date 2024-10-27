@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt } from 'class-validator';
+// DTO_CREATE.ts
+import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt, IsArray, ArrayNotEmpty } from 'class-validator';
 
 export class CreateResponsableDto {
   @IsNotEmpty()
@@ -23,5 +24,10 @@ export class CreateResponsableDto {
 
   @IsOptional()
   @IsInt()
-  rolId?: number;  // Campo opcional para el ID de rol
+  rolId?: number;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsInt({ each: true })
+  alumnoIds: number[];  // Nueva propiedad para recibir IDs de alumnos
 }
