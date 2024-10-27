@@ -11,9 +11,10 @@ import { AdministrativosModule } from 'src/administrativos/administrativos.modul
   providers: [UsuariosService],
   imports: [
     TypeOrmModule.forFeature([Usuario]),
+    
     ResponsablesModule, // Importa el módulo de Responsable
     AdministrativosModule, // Importa el módulo de Administrativo
   ],
-
+  exports: [TypeOrmModule,UsuariosService]
 })
 export class UsuariosModule {}

@@ -28,4 +28,8 @@ export class CreateAdministrativoDto {
   @IsNotEmpty()
   @IsInt()
   rolId: number;
+
+  @IsNotEmpty()
+  @IsString()
+  password: string;  // Nuevo campo para capturar la contraseña
 }

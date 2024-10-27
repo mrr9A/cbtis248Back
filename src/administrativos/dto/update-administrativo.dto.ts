@@ -28,4 +28,8 @@ export class UpdateAdministrativoDto {
   @IsOptional()
   @IsInt()
   rolId?: number; // Hacer rolId opcional
+
+  @IsOptional()
+  @IsString()
+  password?: string;
 }

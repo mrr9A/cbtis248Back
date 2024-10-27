@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 import { Rol } from 'src/roles/entities/role.entity';
+import { Usuario } from 'src/usuarios/entities/usuario.entity';
 
 @Entity('administrativos')
 export class Administrativo {
@@ -26,4 +27,8 @@ export class Administrativo {
 
   @ManyToOne(() => Rol, (rol) => rol.administrativos)
   rol: Rol;
+
+  @OneToOne(() => Usuario, (usuario) => usuario.administrativo, { cascade: true })
+  @JoinColumn()
+  usuario: Usuario;
 }

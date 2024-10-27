@@ -7,6 +7,7 @@ import { UpdateResponsableDto } from './dto/update-responsable.dto';
 import { Rol } from 'src/roles/entities/role.entity';
 import { AlumnoResponsable } from 'src/alumno-responsable/entities/alumno-responsable.entity';
 import { Alumno } from 'src/alumnos/entities/alumno.entity';
+import { Usuario } from 'src/usuarios/entities/usuario.entity';
 
 @Injectable()
 export class ResponsablesService {
@@ -14,16 +15,16 @@ export class ResponsablesService {
     @InjectRepository(Responsable)
     private responsablesRepository: Repository<Responsable>,
     @InjectRepository(Rol)
-    private rolRepository: Repository<Rol>,
+    private rolRepository: Repository<Rol>,  // Repositorio del rol para asignar
     @InjectRepository(AlumnoResponsable)
     private alumnoResponsableRepository: Repository<AlumnoResponsable>,
-    @InjectRepository(Alumno)
-    private alumnoRepository: Repository<Alumno>,
-  ) { }
+    @InjectRepository(Usuario)
+    private usuariosRepository: Repository<Usuario>,
+  ) {}
 
   async findAll(): Promise<Responsable[]> {
     try {
-      return await this.responsablesRepository.find({ relations: ['rol', 'alumnoResponsables'] });
+      return await this.responsablesRepository.find({ relations: ['rol','alumnoResponsables'] });
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los responsables');
     }
@@ -39,102 +40,125 @@ export class ResponsablesService {
     }
   }
 
-  async create(createResponsableDto: CreateResponsableDto): Promise<Responsable> {
-    try {
-      const responsable = this.responsablesRepository.create({
-        nombre: createResponsableDto.nombre,
-        apellido_paterno: createResponsableDto.apellido_paterno,
-        apellido_materno: createResponsableDto.apellido_materno,
-        correo_electronico: createResponsableDto.correo_electronico,
-        num_telefono: createResponsableDto.num_telefono,
-      });
-
-      if (createResponsableDto.rolId) {
-        const rol = await this.rolRepository.findOneBy({ id: createResponsableDto.rolId });
-        if (!rol) throw new NotFoundException('Rol no encontrado');
-        responsable.rol = rol;
-      }
-
-      const savedResponsable = await this.responsablesRepository.save(responsable);
-
-      // Asignar alumnos como responsables tutores
-      const alumnoResponsables = createResponsableDto.alumnoIds.map((alumnoId) => {
-        const alumnoResponsable = new AlumnoResponsable();
-        alumnoResponsable.responsable = savedResponsable;
-        alumnoResponsable.alumno = { id: alumnoId } as Alumno; // Referencia al alumno
-        return alumnoResponsable;
-      });
-      await this.alumnoResponsableRepository.save(alumnoResponsables);
-
-      return savedResponsable;
-    } catch (error) {
-      throw new InternalServerErrorException('Error al crear el responsable');
-    }
-  }
-
-
-  /*     async update(id: number, updateResponsableDto: UpdateResponsableDto): Promise<Responsable> {
-        try {
-          // Buscar el responsable existente
-          const responsable = await this.responsablesRepository.findOneBy({ id });
-          if (!responsable) throw new NotFoundException(`Responsable con ID ${id} no encontrado`);
+    async create(createResponsableDto: CreateResponsableDto): Promise<Responsable> {
+      const { nombre, apellido_paterno, apellido_materno, correo_electronico, num_telefono, password, rolId, alumnoIds } = createResponsableDto;
       
-          // Actualizar propiedades del responsable
-          Object.assign(responsable, updateResponsableDto);
-      
-          // Si existe rolId en el DTO, buscar el rol y asignarlo
-          if (updateResponsableDto.rolId) {
-            const rol = await this.rolRepository.findOneBy({ id: updateResponsableDto.rolId });
-            if (!rol) throw new NotFoundException('Rol no encontrado');
-            responsable.rol = rol;
-          }
-      
-          // Guardar los cambios en la base de datos
-          return await this.responsablesRepository.save(responsable);
-        } catch (error) {
-          throw new InternalServerErrorException('Error al actualizar el responsable');
-        }
-      } */
-
-  async update(id: number, updateResponsableDto: UpdateResponsableDto): Promise<Responsable> {
-    try {
-      // Buscar el responsable existente
-      const responsable = await this.responsablesRepository.findOneBy({ id });
-      if (!responsable) throw new NotFoundException(`Responsable con ID ${id} no encontrado`);
-
-      // Actualizar propiedades del responsable
-      Object.assign(responsable, updateResponsableDto);
-
-      // Si existe `rolId`, buscar el rol y asignarlo
-      if (updateResponsableDto.rolId) {
-        const rol = await this.rolRepository.findOneBy({ id: updateResponsableDto.rolId });
-        if (!rol) throw new NotFoundException('Rol no encontrado');
-        responsable.rol = rol;
-      }
-
-      // Actualizar la relación con los alumnos en la tabla `alumno_responsable`
-      if (updateResponsableDto.alumnoIds && updateResponsableDto.alumnoIds.length > 0) {
-        // Eliminar relaciones anteriores en `alumno_responsable` para este responsable
-        await this.alumnoResponsableRepository.delete({ responsable: { id } });
-
-        // Crear nuevas relaciones
-        const relacionesAlumnoResponsable = updateResponsableDto.alumnoIds.map((alumnoId) => {
-          return this.alumnoResponsableRepository.create({
-            alumno: { id: alumnoId },
-            responsable,
-          });
+      try {
+        // Crear el responsable
+        const responsable = this.responsablesRepository.create({
+          nombre,
+          apellido_paterno,
+          apellido_materno,
+          correo_electronico,
+          num_telefono,
         });
-
-        // Guardar las nuevas relaciones en la base de datos
-        await this.alumnoResponsableRepository.save(relacionesAlumnoResponsable);
+  
+        // Asignar el rol si se proporcionó un rolId
+        if (rolId) {
+          const rol = await this.rolRepository.findOneBy({ id: rolId });
+          if (!rol) throw new NotFoundException('Rol no encontrado');
+          responsable.rol = rol;
+        }
+  
+        // Guardar el responsable en la base de datos
+        const nuevoResponsable = await this.responsablesRepository.save(responsable);
+  
+        // Crear un usuario para el responsable
+        const usuario = this.usuariosRepository.create({
+          correo_electronico,
+          password,
+          responsable: nuevoResponsable,
+        });
+        await this.usuariosRepository.save(usuario);
+  
+        // Asignar alumnos como tutores en la tabla alumno_responsable si se proporcionaron IDs
+        if (alumnoIds && alumnoIds.length > 0) {
+          const alumnoResponsables = alumnoIds.map(alumnoId => {
+            return this.alumnoResponsableRepository.create({
+              responsable: nuevoResponsable,
+              alumno: { id: alumnoId },  // Solo necesita el ID del alumno
+            });
+          });
+          await this.alumnoResponsableRepository.save(alumnoResponsables);
+        }
+  
+        return nuevoResponsable;
+      } catch (error) {
+        throw new InternalServerErrorException('Error al crear el responsable');
       }
-
-      // Guardar cambios del responsable
-      return await this.responsablesRepository.save(responsable);
-    } catch (error) {
-      throw new InternalServerErrorException('Error al actualizar el responsable');
     }
+
+    async update(id: number, updateResponsableDto: UpdateResponsableDto): Promise<Responsable> {
+      const { nombre, apellido_paterno, apellido_materno, correo_electronico, num_telefono, rolId, password, alumnoIds } = updateResponsableDto;
+  
+      try {
+          console.log('Buscando responsable...');
+          const responsable = await this.responsablesRepository.findOne({
+              where: { id },
+              relations: ['rol'],
+          });
+          if (!responsable) throw new NotFoundException(`Responsable con ID ${id} no encontrado`);
+          console.log('Responsable encontrado:', responsable);
+  
+          // Actualizar los campos del responsable
+          if (nombre) responsable.nombre = nombre;
+          if (apellido_paterno) responsable.apellido_paterno = apellido_paterno;
+          if (apellido_materno) responsable.apellido_materno = apellido_materno;
+          if (num_telefono) responsable.num_telefono = num_telefono;
+  
+          // Actualizar el rol si es necesario
+          if (rolId) {
+              const rol = await this.rolRepository.findOneBy({ id: rolId });
+              if (!rol) throw new NotFoundException('Rol no encontrado');
+              responsable.rol = rol;
+              console.log('Rol actualizado:', rol);
+          }
+  
+          // Guardar los cambios en el responsable
+          await this.responsablesRepository.save(responsable);
+  
+          // Actualizar o crear el usuario asociado al responsable
+          let usuario = await this.usuariosRepository.findOne({
+            where: { responsable: { id } },
+        });
+        
+  
+          if (!usuario) {
+              usuario = this.usuariosRepository.create({
+                  correo_electronico,
+                  password,
+                  responsable,
+              });
+              console.log('Usuario creado:', usuario);
+          } else {
+              if (correo_electronico) usuario.correo_electronico = correo_electronico;
+              if (password) usuario.password = password;
+              console.log('Usuario actualizado:', usuario);
+          }
+          await this.usuariosRepository.save(usuario);
+  
+          // Actualizar las relaciones de tutoría en la tabla alumno_responsable
+          if (alumnoIds) {
+              console.log('Actualizando relaciones de alumno_responsable...');
+              await this.alumnoResponsableRepository.delete({ responsable: { id } });
+  
+              const alumnoResponsables = alumnoIds.map(alumnoId =>
+                  this.alumnoResponsableRepository.create({
+                      responsable,
+                      alumno: { id: alumnoId },
+                  }),
+              );
+              await this.alumnoResponsableRepository.save(alumnoResponsables);
+              console.log('Relaciones actualizadas con los alumnos:', alumnoIds);
+          }
+  
+          return responsable;
+      } catch (error) {
+          console.error('Error al actualizar el responsable:', error.message);
+          throw new InternalServerErrorException('Error al actualizar el responsable');
+      }
   }
+  
 
   async remove(id: number): Promise<void> {
     try {

@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
 import { AlumnoResponsable } from 'src/alumno-responsable/entities/alumno-responsable.entity';
 import { Rol } from 'src/roles/entities/role.entity';
+import { Usuario } from 'src/usuarios/entities/usuario.entity';
 
 @Entity('responsables')
 export class Responsable {
@@ -27,4 +28,8 @@ export class Responsable {
 
   @ManyToOne(() => Rol, (rol) => rol.responsable, { nullable: true })
   rol: Rol;
+
+  @OneToOne(() => Usuario, usuario => usuario.responsable, { cascade: true, nullable: true })
+  @JoinColumn()
+  usuario: Usuario;
 }

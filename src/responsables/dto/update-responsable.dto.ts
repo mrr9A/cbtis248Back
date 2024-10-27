@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt, IsArray, ArrayNotEmpty } from 'class-validator';
+// UpdateResponsableDto
+import { IsOptional, IsString, IsEmail, IsInt, IsArray } from 'class-validator';
 
 export class UpdateResponsableDto {
   @IsOptional()
@@ -26,8 +27,11 @@ export class UpdateResponsableDto {
   rolId?: number;
 
   @IsOptional()
+  @IsString()
+  password?: string;
+
   @IsArray()
-  @ArrayNotEmpty()
   @IsInt({ each: true })
+  @IsOptional()
   alumnoIds?: number[];
 }

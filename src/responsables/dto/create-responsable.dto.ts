@@ -1,5 +1,4 @@
-// DTO_CREATE.ts
-import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt, IsArray, ArrayNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt, IsArray } from 'class-validator';
 
 export class CreateResponsableDto {
   @IsNotEmpty()
@@ -26,8 +25,13 @@ export class CreateResponsableDto {
   @IsInt()
   rolId?: number;
 
+  @IsNotEmpty()
+  @IsString()
+  password: string;  // Nuevo campo para la contraseña
+
   @IsArray()
-  @ArrayNotEmpty()
   @IsInt({ each: true })
-  alumnoIds: number[];  // Nueva propiedad para recibir IDs de alumnos
+  @IsOptional()
+  alumnoIds?: number[]; // IDs de los alumnos asignados como tutores
+
 }
