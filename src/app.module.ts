@@ -13,6 +13,8 @@ import { UsuariosModule } from './usuarios/usuarios.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AlumnoResponsableModule } from './alumno-responsable/alumno-responsable.module';
+import { AuthModule } from './auth/auth/auth.module';
+
 
 @Module({
   imports: [
@@ -37,7 +39,8 @@ import { AlumnoResponsableModule } from './alumno-responsable/alumno-responsable
     TipoIncidenciasModule,
     AdministrativosModule,
     UsuariosModule,
-    AlumnoResponsableModule
+    AlumnoResponsableModule,
+    AuthModule
   ],
   controllers: [AppController],
   providers: [AppService],
