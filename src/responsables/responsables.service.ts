@@ -32,14 +32,21 @@ export class ResponsablesService {
 
   async findOne(id: number): Promise<Responsable> {
     try {
-      const responsable = await this.responsablesRepository.findOneBy({ id });
-      if (!responsable) throw new NotFoundException(`Responsable con ID ${id} no encontrado`);
+      const responsable = await this.responsablesRepository.findOne({
+        where: { id },
+        relations: ['alumnoResponsables.alumno.grupo','alumnoResponsables.alumno.incidencias','alumnoResponsables.alumno.grupo.avisos'], // Incluye aquí las relaciones que necesites
+      });
+  
+      if (!responsable) {
+        throw new NotFoundException(`Responsable con ID ${id} no encontrado`);
+      }
+  
       return responsable;
     } catch (error) {
       throw error instanceof NotFoundException ? error : new InternalServerErrorException('Error al obtener el responsable');
     }
   }
-
+  
     async create(createResponsableDto: CreateResponsableDto): Promise<Responsable> {
       const { nombre, apellido_paterno, apellido_materno, correo_electronico, num_telefono, password, rolId, alumnoIds } = createResponsableDto;
       

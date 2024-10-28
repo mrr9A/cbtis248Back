@@ -39,7 +39,7 @@ export class IncidenciasService {
     }
   }
 
-  async create(createIncidenciaDto: CreateIncidenciaDto): Promise<Incidencia> {
+/*   async create(createIncidenciaDto: CreateIncidenciaDto): Promise<Incidencia> {
     try {
       // Buscando los registros relacionados
       const alumno = await this.alumnosRepository.findOne({ where: { id: createIncidenciaDto.alumno_id } });
@@ -69,7 +69,41 @@ export class IncidenciasService {
     } catch (error) {
       throw new InternalServerErrorException('Error al crear la incidencia');
     }
-  }
+  } */
+
+    async create(createIncidenciaDto: CreateIncidenciaDto): Promise<Incidencia> {
+      try {
+        // Buscando los registros relacionados
+        const alumno = await this.alumnosRepository.findOne({ where: { id: createIncidenciaDto.alumno_id } });
+        if (!alumno) {
+          throw new NotFoundException(`Alumno con ID ${createIncidenciaDto.alumno_id} no encontrado`);
+        }
+    
+        const grupo = await this.gruposRepository.findOne({ where: { id: createIncidenciaDto.grupo_id } });
+        if (!grupo) {
+          throw new NotFoundException(`Grupo con ID ${createIncidenciaDto.grupo_id} no encontrado`);
+        }
+    
+        const tipoIncidencia = await this.tiposIncidenciaRepository.findOne({ where: { id: createIncidenciaDto.tipo_incidencia_id } });
+        if (!tipoIncidencia) {
+          throw new NotFoundException(`Tipo de incidencia con ID ${createIncidenciaDto.tipo_incidencia_id} no encontrado`);
+        }
+    
+        // Creando la incidencia
+        const incidencia = this.incidenciasRepository.create({
+          descripcion: createIncidenciaDto.descripcion,
+          alumno: alumno,
+          grupo: grupo,
+          tipo_incidencia: tipoIncidencia,
+          fecha: createIncidenciaDto.fecha ? new Date(createIncidenciaDto.fecha) : undefined,
+        });
+    
+        return await this.incidenciasRepository.save(incidencia);
+      } catch (error) {
+        throw new InternalServerErrorException('Error al crear la incidencia');
+      }
+    }
+    
 
   async update(id: number, updateIncidenciaDto: UpdateIncidenciaDto): Promise<Incidencia> {
     try {

@@ -36,25 +36,6 @@ export class AlumnosService {
     }
   }
 
-/*   async create(createAlumnoDto: CreateAlumnoDto): Promise<Alumno> {
-    try {
-      const { grupoId, ...alumnoData } = createAlumnoDto;
-      const alumno = this.alumnosRepository.create(alumnoData);
-  
-      if (grupoId) {
-        const grupo = await this.gruposRepository.findOne({ where: { id: grupoId } });
-        if (grupo) {
-          alumno.grupo = grupo;
-        }
-      }
-  
-      return await this.alumnosRepository.save(alumno);
-    } catch (error) {
-      console.error('Error al crear el alumno:', error); // Imprime el error
-      throw new InternalServerErrorException('Error al crear el alumno');
-    }
-  } */
-
     async create(createAlumnoDto: CreateAlumnoDto): Promise<Alumno> {
       try {
         const { grupoId, ...alumnoData } = createAlumnoDto;

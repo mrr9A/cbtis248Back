@@ -1,5 +1,5 @@
 // create-incidencia.dto.ts
-import { IsNotEmpty, IsString, IsInt } from 'class-validator';
+import { IsNotEmpty, IsString, IsInt, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateIncidenciaDto {
   @IsNotEmpty()
@@ -17,4 +17,8 @@ export class CreateIncidenciaDto {
   @IsNotEmpty()
   @IsInt()
   grupo_id: number;
+
+  @IsOptional()
+  @IsDateString()
+  fecha?: string;  // El campo fecha es opcional
 }

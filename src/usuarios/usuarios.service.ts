@@ -16,11 +16,20 @@ export class UsuariosService {
     private responsableRepository: Repository<Responsable>,
     @InjectRepository(Administrativo)
     private administrativoRepository: Repository<Administrativo>,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Usuario[]> {
     try {
-      return await this.usuariosRepository.find({ relations: ['responsable', 'administrativo'] });
+      return await this.usuariosRepository.find({
+        relations: ['administrativo', // Relación con Administrativo si existe
+          'responsable',
+          'responsable.rol',
+          'responsable.alumnoResponsables.alumno.grupo',
+          'responsable.alumnoResponsables.alumno.incidencias',
+          'responsable.alumnoResponsables.alumno.incidencias.tipo_incidencia',
+          'responsable.alumnoResponsables.alumno.incidencias.alumno',
+          'responsable.alumnoResponsables.alumno.grupo.avisos']
+      });
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los usuarios');
     }
@@ -28,13 +37,30 @@ export class UsuariosService {
 
   async findOne(id: number): Promise<Usuario> {
     try {
-      const usuario = await this.usuariosRepository.findOneBy({ id });
-      if (!usuario) throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      const usuario = await this.usuariosRepository.findOne({
+        where: { id },
+        relations: [
+          'administrativo', // Relación con Administrativo si existe
+          'responsable',
+          'responsable.rol',
+          'responsable.alumnoResponsables.alumno.grupo',
+          'responsable.alumnoResponsables.alumno.incidencias',
+          'responsable.alumnoResponsables.alumno.incidencias.tipo_incidencia',
+          'responsable.alumnoResponsables.alumno.incidencias.alumno',
+          'responsable.alumnoResponsables.alumno.grupo.avisos'
+        ],
+      });
+
+      if (!usuario) {
+        throw new NotFoundException(`Usuario con ID ${id} no encontrado`);
+      }
+
       return usuario;
     } catch (error) {
       throw error instanceof NotFoundException ? error : new InternalServerErrorException('Error al obtener el usuario');
     }
   }
+
 
   // Método para crear un nuevo usuario
   async create(createUsuarioDto: CreateUsuarioDto): Promise<Usuario> {

@@ -19,4 +19,7 @@ export class Incidencia {
 
   @ManyToOne(() => Grupo, (grupo) => grupo.incidencias)
   grupo: Grupo;
+
+  @Column({ type: 'date', default: () => 'CURRENT_DATE' }) // Define el tipo como date y genera automáticamente la fecha actual si no se proporciona
+  fecha: Date;
 }
