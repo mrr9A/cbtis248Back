@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString, IsDate, IsArray, IsInt } from 'class-validator';
+import { IsNotEmpty, IsString, IsDate, IsArray, IsInt, IsOptional } from 'class-validator';
 
 export class CreateAvisoDto {
   @IsNotEmpty()
@@ -13,7 +13,14 @@ export class CreateAvisoDto {
   @IsString() // Cambiar a cadena
   fecha: string;
 
-  @IsArray()
+  @IsOptional()  // Hacemos que este campo sea opcional
+  @IsString()
+  img?: string; // Campo para la URL de la imagen
+
+  @IsNotEmpty()
+  @IsString()
+  grupoIds: string;
+/*   @IsArray()
   @IsInt({ each: true })
-  grupoIds: number[]; // Lista de IDs de los grupos
+  grupoIds: number[]; */ // Lista de IDs de los grupos
 }

@@ -16,6 +16,9 @@ export class Aviso {
   @Column()
   fecha: Date;
 
+  @Column({ nullable: true })
+  img?: string; // O con el tipo que necesites
+
   @ManyToMany(() => Grupo, grupo => grupo.avisos)
   @JoinTable() // Esta anotación crea una tabla intermedia para la relación
   grupos: Grupo[];
