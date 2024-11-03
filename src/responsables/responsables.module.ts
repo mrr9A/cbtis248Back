@@ -8,10 +8,11 @@ import { Alumno } from 'src/alumnos/entities/alumno.entity';
 import { AlumnoResponsable } from 'src/alumno-responsable/entities/alumno-responsable.entity';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
 import { UsuariosModule } from 'src/usuarios/usuarios.module';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Module({
   controllers: [ResponsablesController],
-  providers: [ResponsablesService],
+  providers: [ResponsablesService,CloudinaryService],
   imports: [TypeOrmModule.forFeature([Responsable,Rol,Alumno,AlumnoResponsable,Usuario]),
 ],
   exports: [TypeOrmModule]

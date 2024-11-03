@@ -23,7 +23,10 @@ export class Responsable {
   @Column()
   num_telefono: string;
 
-  @OneToMany(() => AlumnoResponsable, (ar) => ar.responsable)
+  @Column({ nullable: true })
+  img?: string; // O con el tipo que necesites
+
+  @OneToMany(() => AlumnoResponsable, (ar) => ar.responsable, { cascade: true })
   alumnoResponsables: AlumnoResponsable[];
 
   @ManyToOne(() => Rol, (rol) => rol.responsable, { nullable: true })

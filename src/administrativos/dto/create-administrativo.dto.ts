@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsString, IsEmail, IsInt } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsNotEmpty, IsString, IsEmail, IsInt, IsOptional } from 'class-validator';
 
 export class CreateAdministrativoDto {
   @IsNotEmpty()
@@ -21,15 +22,16 @@ export class CreateAdministrativoDto {
   @IsString()
   num_telefono: string;
 
-  @IsNotEmpty()
-  @IsString()
-  imagen_perfil: string;
-
-  @IsNotEmpty()
+  @Type(() => Number)
+  @IsOptional()
   @IsInt()
-  rolId: number;
+  rolId?: number;
 
   @IsNotEmpty()
   @IsString()
   password: string;  // Nuevo campo para capturar la contraseña
+
+  @IsOptional()  // Hacemos que este campo sea opcional
+  @IsString()
+  img?: string; // Campo para la URL de la imagen
 }

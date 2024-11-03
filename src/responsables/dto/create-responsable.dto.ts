@@ -1,4 +1,6 @@
-import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt, IsArray } from 'class-validator';
+import { ApiProperty  } from '@nestjs/swagger';
+import { Transform, Type } from 'class-transformer';
+import { IsNotEmpty, IsEmail, IsString, IsOptional, IsInt, IsArray, ArrayNotEmpty } from 'class-validator';
 
 export class CreateResponsableDto {
   @IsNotEmpty()
@@ -21,6 +23,7 @@ export class CreateResponsableDto {
   @IsString()
   num_telefono: string;
 
+  @Type(() => Number)
   @IsOptional()
   @IsInt()
   rolId?: number;
@@ -29,9 +32,11 @@ export class CreateResponsableDto {
   @IsString()
   password: string;  // Nuevo campo para la contraseña
 
-  @IsArray()
-  @IsInt({ each: true })
-  @IsOptional()
-  alumnoIds?: number[]; // IDs de los alumnos asignados como tutores
+  @IsNotEmpty()
+  @IsString()
+  alumnoIds: string;
 
+  @IsOptional()  // Hacemos que este campo sea opcional
+  @IsString()
+  img?: string; // Campo para la URL de la imagen
 }

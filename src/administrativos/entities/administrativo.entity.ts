@@ -23,7 +23,7 @@ export class Administrativo {
   num_telefono: string;
 
   @Column({ nullable: true })
-  imagen_perfil: string;
+  img: string;
 
   @ManyToOne(() => Rol, (rol) => rol.administrativos)
   rol: Rol;

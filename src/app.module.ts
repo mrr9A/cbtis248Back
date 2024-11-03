@@ -14,6 +14,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { AlumnoResponsableModule } from './alumno-responsable/alumno-responsable.module';
 import { AuthModule } from './auth/auth/auth.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
 
 
 @Module({
@@ -40,7 +41,8 @@ import { AuthModule } from './auth/auth/auth.module';
     AdministrativosModule,
     UsuariosModule,
     AlumnoResponsableModule,
-    AuthModule
+    AuthModule,
+    CloudinaryModule
   ],
   controllers: [AppController],
   providers: [AppService],

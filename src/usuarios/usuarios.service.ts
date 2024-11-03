@@ -24,6 +24,7 @@ export class UsuariosService {
         relations: ['administrativo', // Relación con Administrativo si existe
           'responsable',
           'responsable.rol',
+          'administrativo.rol',
           'responsable.alumnoResponsables.alumno.grupo',
           'responsable.alumnoResponsables.alumno.incidencias',
           'responsable.alumnoResponsables.alumno.incidencias.tipo_incidencia',
