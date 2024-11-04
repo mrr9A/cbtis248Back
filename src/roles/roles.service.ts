@@ -14,7 +14,7 @@ export class RolesService {
 
   async findAll(): Promise<Rol[]> {
     try {
-      return await this.rolesRepository.find();
+      return await this.rolesRepository.find({relations:['administrativos']});
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los roles');
     }

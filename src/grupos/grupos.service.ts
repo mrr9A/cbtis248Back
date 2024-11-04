@@ -14,7 +14,8 @@ export class GruposService {
 
   async findAll(): Promise<Grupo[]> {
     try {
-      return await this.gruposRepository.find();
+      return await this.gruposRepository.find({
+        relations: ['alumnos','alumnos.alumnoResponsables.responsable']});
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los grupos');
     }
