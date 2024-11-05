@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateAuthDto } from 'src/auth/auth/dto/create-auth.dto'; // Asegúrate de importar el DTO
@@ -9,24 +9,29 @@ export class AuthService {
     @InjectRepository(Usuario)
     private usuariosRepository: Repository<Usuario>,
   ) {}
-
-  async login(loginDto: CreateAuthDto): Promise<any> {
-    const { correo_electronico, password } = loginDto;
-
-    // Busca al usuario por correo electrónico
-    const usuario = await this.usuariosRepository.findOne({
-      where: { correo_electronico },
-    });
-
-    // Verifica si el usuario existe y si la contraseña es correcta
-    if (!usuario || usuario.password !== password) {
-      throw new UnauthorizedException('Credenciales incorrectas');
+  
+    async login(loginDto: CreateAuthDto): Promise<any> {
+      const { correo_electronico, password } = loginDto;
+  
+      // Busca al usuario por correo electrónico
+      const usuario = await this.usuariosRepository.findOne({
+        where: { correo_electronico },
+      });
+  
+      // Verifica si el usuario existe
+      if (!usuario) {
+        throw new NotFoundException('El correo electrónico es incorrecto');
+      }
+  
+      // Verifica si la contraseña es correcta
+      if (usuario.password !== password) {
+        throw new UnauthorizedException('La contraseña es incorrecta');
+      }
+  
+      // Devuelve información del usuario
+      return {
+        id: usuario.id,
+        correo_electronico: usuario.correo_electronico,
+      };
     }
-
-    // Devuelve información del usuario (puedes personalizar lo que desees)
-    return {
-      id: usuario.id,
-      correo_electronico: usuario.correo_electronico
-    };
-  }
 }
