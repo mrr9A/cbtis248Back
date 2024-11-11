@@ -21,11 +21,11 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
   imports: [
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
+      host: 'bqbp3d5xmii4jza9pxax-mysql.services.clever-cloud.com',
       port: 3306,
-      username: 'root',
-      password: '', // Asegúrate de definir tu password correcta
-      database: 'cbtiszimatlan',
+      username: 'utq57vkeykustwmj',
+      password: 'FG5adeNUe9VGfBp1msCV', // Asegúrate de definir tu password correcta
+      database: 'bqbp3d5xmii4jza9pxax',
       autoLoadEntities: true, // Cargar automáticamente entidades
       synchronize: true, // Sincronizar entidades con la base de datos (desactiva en producción)
     }),

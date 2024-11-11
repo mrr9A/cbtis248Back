@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, BeforeInsert } from 'typeorm';
 import { Alumno } from 'src/alumnos/entities/alumno.entity';
 import { Grupo } from 'src/grupos/entities/grupo.entity';
 import { TipoIncidencia } from 'src/tipo-incidencias/entities/tipo-incidencia.entity';
@@ -20,6 +20,11 @@ export class Incidencia {
   @ManyToOne(() => Grupo, (grupo) => grupo.incidencias)
   grupo: Grupo;
 
-  @Column({ type: 'date', default: () => 'CURRENT_DATE' }) // Define el tipo como date y genera automáticamente la fecha actual si no se proporciona
+  @Column({ type: 'date', nullable: true }) // Configura como nullable
   fecha: Date;
+
+  @BeforeInsert()
+  setFecha() {
+    this.fecha = new Date(); // Establece la fecha actual antes de insertar
+  }
 }
