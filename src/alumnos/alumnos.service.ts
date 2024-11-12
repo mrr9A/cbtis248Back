@@ -29,7 +29,7 @@ export class AlumnosService {
     try {
       const alumno = await this.alumnosRepository.findOne({
         where: { id },
-        relations: ['grupo', 'incidencias'],
+        relations: ['grupo', 'incidencias','incidencias.tipo_incidencia'],
       });
       if (!alumno) throw new NotFoundException(`Alumno con ID ${id} no encontrado`);
       return alumno;
