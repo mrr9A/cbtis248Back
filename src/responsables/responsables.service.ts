@@ -37,7 +37,7 @@ export class ResponsablesService {
     try {
       const responsable = await this.responsablesRepository.findOne({
         where: { id },
-        relations: ['alumnoResponsables.alumno.grupo', 'alumnoResponsables.alumno.incidencias', 'alumnoResponsables.alumno.grupo.avisos'], // Incluye aquí las relaciones que necesites
+        relations: ['alumnoResponsables.alumno.grupo', 'alumnoResponsables.alumno.incidencias', 'alumnoResponsables.alumno.grupo.avisos','rol','alumnoResponsables.alumno.incidencias.tipo_incidencia'], // Incluye aquí las relaciones que necesites
       });
 
       if (!responsable) {
