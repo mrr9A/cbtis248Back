@@ -1,6 +1,7 @@
 // aviso.entity.ts
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, JoinTable, ManyToOne } from 'typeorm';
 import { Grupo } from 'src/grupos/entities/grupo.entity';
+import { Administrativo } from 'src/administrativos/entities/administrativo.entity';
 
 @Entity()
 export class Aviso {
@@ -22,4 +23,7 @@ export class Aviso {
   @ManyToMany(() => Grupo, grupo => grupo.avisos)
   @JoinTable() // Esta anotación crea una tabla intermedia para la relación
   grupos: Grupo[];
+
+  @ManyToOne(() => Administrativo, administrativo => administrativo.avisos, { nullable: false })
+  administrativo: Administrativo; // Nueva relación con Administrativo
 }

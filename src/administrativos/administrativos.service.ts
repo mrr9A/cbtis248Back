@@ -22,7 +22,7 @@ export class AdministrativosService {
 
   async findAll(): Promise<Administrativo[]> {
     try {
-      return await this.administrativosRepository.find({ relations: ['rol'] });
+      return await this.administrativosRepository.find({ relations: ['rol','avisos','usuario'] });
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los administrativos');
     }
@@ -30,7 +30,7 @@ export class AdministrativosService {
 
   async findOne(id: number): Promise<Administrativo> {
     try {
-      const administrativo = await this.administrativosRepository.findOne({ where: { id }, relations: ['rol'] });
+      const administrativo = await this.administrativosRepository.findOne({ where: { id }, relations: ['rol','avisos','usuario'] });
       if (!administrativo) throw new NotFoundException(`Administrativo con ID ${id} no encontrado`);
       return administrativo;
     } catch (error) {

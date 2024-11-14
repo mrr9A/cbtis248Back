@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsString, IsDate, IsArray, IsInt, IsOptional } from 'class-validator';
 
 export class CreateAvisoDto {
@@ -20,7 +21,9 @@ export class CreateAvisoDto {
   @IsNotEmpty()
   @IsString()
   grupoIds: string;
-/*   @IsArray()
-  @IsInt({ each: true })
-  grupoIds: number[]; */ // Lista de IDs de los grupos
+
+  @Type(() => Number)
+  @IsOptional()
+  @IsInt()
+  administrativoId: number;
 }

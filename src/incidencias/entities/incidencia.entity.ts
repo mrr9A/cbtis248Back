@@ -2,6 +2,7 @@ import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, BeforeInsert } from 
 import { Alumno } from 'src/alumnos/entities/alumno.entity';
 import { Grupo } from 'src/grupos/entities/grupo.entity';
 import { TipoIncidencia } from 'src/tipo-incidencias/entities/tipo-incidencia.entity';
+import { Administrativo } from 'src/administrativos/entities/administrativo.entity';
 
 @Entity('incidencias')
 export class Incidencia {
@@ -27,4 +28,8 @@ export class Incidencia {
   setFecha() {
     this.fecha = new Date(); // Establece la fecha actual antes de insertar
   }
+
+  @ManyToOne(() => Administrativo, administrativo => administrativo.incidencias, { nullable: false })
+  administrativo: Administrativo;
+
 }

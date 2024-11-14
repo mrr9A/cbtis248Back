@@ -1,4 +1,5 @@
 // create-incidencia.dto.ts
+import { Type } from 'class-transformer';
 import { IsNotEmpty, IsString, IsInt, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateIncidenciaDto {
@@ -17,6 +18,11 @@ export class CreateIncidenciaDto {
   @IsNotEmpty()
   @IsInt()
   grupo_id: number;
+
+  @Type(() => Number)
+  @IsOptional()
+  @IsInt()
+  administrativo_id: number;
 
   @IsOptional()
   @IsDateString()

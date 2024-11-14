@@ -1,6 +1,8 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { Rol } from 'src/roles/entities/role.entity';
 import { Usuario } from 'src/usuarios/entities/usuario.entity';
+import { Aviso } from 'src/avisos/entities/aviso.entity';
+import { Incidencia } from 'src/incidencias/entities/incidencia.entity';
 
 @Entity('administrativos')
 export class Administrativo {
@@ -31,4 +33,10 @@ export class Administrativo {
   @OneToOne(() => Usuario, (usuario) => usuario.administrativo, { cascade: true })
   @JoinColumn()
   usuario: Usuario;
+
+  @OneToMany(() => Aviso, aviso => aviso.administrativo)
+  avisos: Aviso[]; // Lista de avisos realizados por el administrativo
+
+  @OneToMany(() => Incidencia,incidencia => incidencia.administrativo)
+  incidencias: Incidencia[];
 }

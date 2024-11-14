@@ -29,6 +29,14 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
+/*         type: 'mysql', 
+        host: 'localhost',
+        port: 3306,
+        username: 'root',
+        password: '', // Asegúrate de definir tu password correcta
+        database: 'cbtiszimatlan',
+        autoLoadEntities: true, // Cargar automáticamente entidades
+        synchronize: true, // Sincronizar entidades con la base de datos (desactiva en producción) */
     }), 
     AlumnosModule,
     ResponsablesModule,

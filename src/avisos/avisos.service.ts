@@ -6,6 +6,7 @@ import { CreateAvisoDto } from './dto/create-aviso.dto';
 import { UpdateAvisoDto } from './dto/update-aviso.dto';
 import { Grupo } from 'src/grupos/entities/grupo.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Administrativo } from 'src/administrativos/entities/administrativo.entity';
 
 @Injectable()
 export class AvisosService {
@@ -14,12 +15,14 @@ export class AvisosService {
     private avisosRepository: Repository<Aviso>,
     @InjectRepository(Grupo)
     private gruposRepository: Repository<Grupo>, // Repositorio de Grupo
+    @InjectRepository(Administrativo)
+    private administrativosRepository: Repository<Administrativo>, // Repositorio de Administrativo
     private CloudinaryService: CloudinaryService,
   ) { }
 
   async findAll(): Promise<Aviso[]> {
     try {
-      return await this.avisosRepository.find({ relations: ['grupos'] });
+      return await this.avisosRepository.find({ relations: ['grupos','administrativo'] });
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los avisos');
     }
@@ -27,7 +30,12 @@ export class AvisosService {
 
   async findOne(id: number): Promise<Aviso> {
     try {
-      const aviso = await this.avisosRepository.findOneBy({ id });
+      const aviso = await this.avisosRepository.findOne(
+        {
+          where: { id },
+          relations: ['grupos','administrativo'],
+        }
+      );
       if (!aviso) throw new NotFoundException(`Aviso con ID ${id} no encontrado`);
       return aviso;
     } catch (error) {
@@ -37,55 +45,56 @@ export class AvisosService {
 
   async create(createAvisoDto: CreateAvisoDto, file: Express.Multer.File, folder: string): Promise<Aviso> {
     try {
-      const { grupoIds, fecha, nombre, descripcion } = createAvisoDto;
-  
+      const { grupoIds, fecha, nombre, descripcion, administrativoId } = createAvisoDto;
+
       // Convertir `grupoIds` en un arreglo si es necesario
       let grupoIdsArray: number[];
-  
       if (typeof grupoIds === 'string') {
         grupoIdsArray = JSON.parse(grupoIds);
       } else {
-        grupoIdsArray = grupoIds; // Suponiendo que ya es un arreglo de números
+        grupoIdsArray = grupoIds;
       }
-  
-      //console.log('IDs de grupos convertidos:', grupoIdsArray); // Verificar los IDs
-  
+
       // Convertir `fecha` a Date
       const fechaConvertida = new Date(fecha);
       if (isNaN(fechaConvertida.getTime())) {
         throw new BadRequestException('Formato de fecha inválido');
       }
-  
+
       // Cargar la imagen a Cloudinary
       const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
       const imagenUrl = uploadImage.url;
-  
-      // Busca los grupos correspondientes a los IDs
+
+      // Buscar los grupos correspondientes a los IDs
       const grupos = await this.gruposRepository.findByIds(grupoIdsArray);
-      //console.log('Grupos encontrados:', grupos);
-  
       if (grupos.length !== grupoIdsArray.length) {
         throw new NotFoundException('Uno o más grupos no fueron encontrados');
       }
-  
-      // Crea el aviso y asigna la fecha y los grupos
+
+      // Buscar el administrativo por ID
+      const administrativo = await this.administrativosRepository.findOne({ where: { id: administrativoId } });
+      if (!administrativo) {
+        throw new NotFoundException(`Administrativo con ID ${administrativoId} no encontrado`);
+      }
+
+
+      // Crear el aviso y asignar los datos
       const aviso = this.avisosRepository.create({
         nombre,
         descripcion,
         fecha: fechaConvertida,
         grupos,
-        img: imagenUrl
+        img: imagenUrl,
+        administrativo, // Asociar el administrativo encontrado
       });
-  
+
       return await this.avisosRepository.save(aviso);
     } catch (error) {
-      //console.error('Error al crear el aviso:', error);
       throw new InternalServerErrorException('Error al crear el aviso');
     }
   }
-  
 
-  // avisos.service.ts
+
   async update(id: number, updateAvisoDto: UpdateAvisoDto): Promise<Aviso> {
     try {
       const { grupoIds, fecha, ...avisoData } = updateAvisoDto;
