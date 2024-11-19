@@ -7,6 +7,8 @@ import { UpdateAvisoDto } from './dto/update-aviso.dto';
 import { Grupo } from 'src/grupos/entities/grupo.entity';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { Administrativo } from 'src/administrativos/entities/administrativo.entity';
+import { NotificacionesGateway } from 'src/notificacion/notificaciones.gateway';
+import { Responsable } from 'src/responsables/entities/responsable.entity';
 
 @Injectable()
 export class AvisosService {
@@ -17,7 +19,10 @@ export class AvisosService {
     private gruposRepository: Repository<Grupo>, // Repositorio de Grupo
     @InjectRepository(Administrativo)
     private administrativosRepository: Repository<Administrativo>, // Repositorio de Administrativo
+    @InjectRepository(Responsable)
+    private responsablesRepository: Repository<Responsable>, // Repositorio de Responsable
     private CloudinaryService: CloudinaryService,
+    private notificacionesGateway: NotificacionesGateway
   ) { }
 
   async findAll(): Promise<Aviso[]> {
@@ -43,10 +48,14 @@ export class AvisosService {
     }
   }
 
-  async create(createAvisoDto: CreateAvisoDto, file: Express.Multer.File, folder: string): Promise<Aviso> {
+  async create(
+    createAvisoDto: CreateAvisoDto,
+    file: Express.Multer.File,
+    folder: string,
+  ): Promise<Aviso> {
     try {
       const { grupoIds, fecha, nombre, descripcion, administrativoId } = createAvisoDto;
-
+  
       // Convertir `grupoIds` en un arreglo si es necesario
       let grupoIdsArray: number[];
       if (typeof grupoIds === 'string') {
@@ -54,30 +63,29 @@ export class AvisosService {
       } else {
         grupoIdsArray = grupoIds;
       }
-
+  
       // Convertir `fecha` a Date
       const fechaConvertida = new Date(fecha);
       if (isNaN(fechaConvertida.getTime())) {
         throw new BadRequestException('Formato de fecha inválido');
       }
-
+  
       // Cargar la imagen a Cloudinary
       const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
       const imagenUrl = uploadImage.url;
-
+  
       // Buscar los grupos correspondientes a los IDs
       const grupos = await this.gruposRepository.findByIds(grupoIdsArray);
       if (grupos.length !== grupoIdsArray.length) {
         throw new NotFoundException('Uno o más grupos no fueron encontrados');
       }
-
+  
       // Buscar el administrativo por ID
       const administrativo = await this.administrativosRepository.findOne({ where: { id: administrativoId } });
       if (!administrativo) {
         throw new NotFoundException(`Administrativo con ID ${administrativoId} no encontrado`);
       }
-
-
+  
       // Crear el aviso y asignar los datos
       const aviso = this.avisosRepository.create({
         nombre,
@@ -87,12 +95,47 @@ export class AvisosService {
         img: imagenUrl,
         administrativo, // Asociar el administrativo encontrado
       });
-
-      return await this.avisosRepository.save(aviso);
+  
+      const avisoGuardado = await this.avisosRepository.save(aviso);
+  
+      // **Enviar notificaciones a los responsables**
+      // Obtener los responsables relacionados con los grupos
+      const responsables: Responsable[] = [];
+      for (const grupo of grupos) {
+        const responsablesGrupo = await this.responsablesRepository
+        .createQueryBuilder('responsable')
+        .leftJoinAndSelect('responsable.alumnoResponsables', 'alumnoResponsable') // Relación intermedia
+        .leftJoinAndSelect('alumnoResponsable.alumno', 'alumno') // Relación hacia Alumno
+        .where('alumno.grupo = :grupo', { grupo: grupo.id })
+        .getMany();
+  
+        responsables.push(...responsablesGrupo);
+      }
+  
+      // Crear el payload de la notificación
+      const payload = {
+        titulo: 'Nuevo Aviso',
+        descripcion: `Se ha publicado un nuevo aviso: ${nombre}.`,
+        fecha: fechaConvertida,
+        img: imagenUrl,
+        grupos: grupos.map((grupo) => grupo.especialidad),
+      };
+  
+      // Enviar la notificación a cada responsable
+      responsables.forEach((responsable) => {
+        this.notificacionesGateway.enviarNotificacion(`notificacion-${responsable.id}`, payload);
+      });
+  
+      return avisoGuardado;
     } catch (error) {
+      console.error(error); // Para depuración
       throw new InternalServerErrorException('Error al crear el aviso');
     }
   }
+  
+
+
+  
 
 
   async update(id: number, updateAvisoDto: UpdateAvisoDto): Promise<Aviso> {

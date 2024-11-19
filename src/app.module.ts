@@ -15,6 +15,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AlumnoResponsableModule } from './alumno-responsable/alumno-responsable.module';
 import { AuthModule } from './auth/auth/auth.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { NotificacionesGateway } from './notificacion/notificaciones.gateway';
 
 
 @Module({
@@ -29,14 +30,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
       database: process.env.DB_NAME,
       autoLoadEntities: true,
       synchronize: true,
-/*         type: 'mysql', 
-        host: 'localhost',
-        port: 3306,
-        username: 'root',
-        password: '', // Asegúrate de definir tu password correcta
-        database: 'cbtiszimatlan',
-        autoLoadEntities: true, // Cargar automáticamente entidades
-        synchronize: true, // Sincronizar entidades con la base de datos (desactiva en producción) */
     }), 
     AlumnosModule,
     ResponsablesModule,
@@ -52,6 +45,6 @@ import { CloudinaryModule } from './cloudinary/cloudinary.module';
     CloudinaryModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService,NotificacionesGateway],
 })
 export class AppModule { }

@@ -7,10 +7,12 @@ import { Alumno } from 'src/alumnos/entities/alumno.entity';
 import { Grupo } from 'src/grupos/entities/grupo.entity';
 import { TipoIncidencia } from 'src/tipo-incidencias/entities/tipo-incidencia.entity';
 import { Administrativo } from 'src/administrativos/entities/administrativo.entity';
+import { NotificacionesGateway } from 'src/notificacion/notificaciones.gateway';
+import { Responsable } from 'src/responsables/entities/responsable.entity';
 
 @Module({
   controllers: [IncidenciasController],
-  providers: [IncidenciasService],
-  imports: [TypeOrmModule.forFeature([Incidencia,Alumno,Grupo,TipoIncidencia,Administrativo])],
+  providers: [IncidenciasService,NotificacionesGateway],
+  imports: [TypeOrmModule.forFeature([Incidencia,Alumno,Grupo,TipoIncidencia,Administrativo,Responsable])],
 })
 export class IncidenciasModule {}
