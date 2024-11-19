@@ -98,7 +98,7 @@ export class UsuariosService {
     }
   }
 
-
+/* HOLA */
   async update(id: number, updateUsuarioDto: UpdateUsuarioDto): Promise<Usuario> {
     try {
       await this.usuariosRepository.update(id, updateUsuarioDto);
