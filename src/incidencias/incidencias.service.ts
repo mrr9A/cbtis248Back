@@ -115,7 +115,7 @@ export class IncidenciasService {
         this.notificacionesGateway.enviarNotificacion(`notificacion-${responsable.id}`, payload);
 
         // Imprimir en consola que se ha enviado la notificación correctamente
-        console.log(`Notificación enviada correctamente a Responsable ID: ${responsable.id}`);
+        //console.log(`Notificación enviada correctamente a Responsable ID: ${responsable.id}`);
       });
 
       return incidenciaGuardada;
