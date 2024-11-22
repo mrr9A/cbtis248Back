@@ -9,10 +9,11 @@ import { TipoIncidencia } from 'src/tipo-incidencias/entities/tipo-incidencia.en
 import { Administrativo } from 'src/administrativos/entities/administrativo.entity';
 import { NotificacionesGateway } from 'src/notificacion/notificaciones.gateway';
 import { Responsable } from 'src/responsables/entities/responsable.entity';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 
 @Module({
   controllers: [IncidenciasController],
-  providers: [IncidenciasService,NotificacionesGateway],
+  providers: [IncidenciasService,NotificacionesGateway,CloudinaryService],
   imports: [TypeOrmModule.forFeature([Incidencia,Alumno,Grupo,TipoIncidencia,Administrativo,Responsable])],
 })
 export class IncidenciasModule {}

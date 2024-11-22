@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Param, Patch, Delete, HttpException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Patch, Delete, HttpException, UseInterceptors, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, BadRequestException, UploadedFile } from '@nestjs/common';
 import { IncidenciasService } from './incidencias.service';
 import { CreateIncidenciaDto } from './dto/create-incidencia.dto';
 import { UpdateIncidenciaDto } from './dto/update-incidencia.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('incidencias')
 export class IncidenciasController {
@@ -17,12 +18,23 @@ export class IncidenciasController {
   }
 
   @Post()
-  async create(@Body() createIncidenciaDto: CreateIncidenciaDto) {
-    try {
-      return await this.incidenciasService.create(createIncidenciaDto);
-    } catch (error) {
-      throw new HttpException(error.message, error.status || 500);
+  @UseInterceptors(FileInterceptor('file'))
+  /*   @HttpCode(201) */
+  async create(@Body() createIncidenciaDto: CreateIncidenciaDto, @Body('folder') folder: string, @UploadedFile(
+    new ParseFilePipe({
+      validators: [
+        new MaxFileSizeValidator({ maxSize: 1024 * 1024 * 4 }), 
+        new FileTypeValidator({ fileType: '.(png|jpeg|jpg)' }), 
+      ],
+    }),
+  ) file: Express.Multer.File) {
+    if (!folder) {
+      throw new BadRequestException('Folder not specified')
     }
+    console.log(createIncidenciaDto);
+    
+    //return 'hola mundo'
+    return this.incidenciasService.create(createIncidenciaDto, file, folder);
   }
 
   @Get(':id')

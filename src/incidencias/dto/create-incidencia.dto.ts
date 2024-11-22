@@ -3,20 +3,20 @@ import { Type } from 'class-transformer';
 import { IsNotEmpty, IsString, IsInt, IsDateString, IsOptional } from 'class-validator';
 
 export class CreateIncidenciaDto {
-  @IsNotEmpty()
-  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
   tipo_incidencia_id: number;
 
   @IsNotEmpty()
   @IsString()
   descripcion: string;
 
-  @IsNotEmpty()
-  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
   alumno_id: number;
 
-  @IsNotEmpty()
-  @IsInt()
+  @Type(() => Number)
+  @IsOptional()
   grupo_id: number;
 
   @Type(() => Number)
@@ -27,4 +27,8 @@ export class CreateIncidenciaDto {
   @IsOptional()
   @IsDateString()
   fecha?: string;  // El campo fecha es opcional
+  
+  @IsOptional()  // Hacemos que este campo sea opcional
+  @IsString()
+  img?: string; // Campo para la URL de la imagen
 }

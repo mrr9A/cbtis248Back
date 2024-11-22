@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsString, IsDate, IsArray, IsInt, IsOptional } from 'class-validator';
+import { IsNotEmpty, IsString, IsDate, IsArray, IsInt, IsOptional, IsDateString } from 'class-validator';
 
 export class CreateAvisoDto {
   @IsNotEmpty()
@@ -11,7 +11,7 @@ export class CreateAvisoDto {
   descripcion: string;
 
   @IsNotEmpty()
-  @IsString() // Cambiar a cadena
+  @IsDateString()
   fecha: string;
 
   @IsOptional()  // Hacemos que este campo sea opcional

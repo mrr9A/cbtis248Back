@@ -11,9 +11,9 @@ export class CreateResponsableDto {
   @IsString()
   apellido_paterno: string;
 
-  @IsNotEmpty()
+  @IsOptional()  // Este campo es ahora opcional
   @IsString()
-  apellido_materno: string;
+  apellido_materno: string | null;  // Permitir que sea NULL
 
   @IsNotEmpty()
   @IsEmail()

@@ -14,8 +14,8 @@ export class Alumno {
   @Column({ length: 100 })
   apellido_paterno: string;
 
-  @Column({ length: 100 })
-  apellido_materno: string;
+  @Column({ length: 100, nullable: true })  // Permitir que sea NULL
+  apellido_materno: string | null;
 
   @Column({ unique: true })
   num_control_escolar: string;

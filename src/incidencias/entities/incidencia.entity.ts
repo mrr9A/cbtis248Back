@@ -24,6 +24,9 @@ export class Incidencia {
   @Column({ type: 'date', nullable: true }) // Configura como nullable
   fecha: Date;
 
+  @Column({ nullable: true })
+  img?: string; // O con el tipo que necesites
+
   @BeforeInsert()
   setFecha() {
     this.fecha = new Date(); // Establece la fecha actual antes de insertar

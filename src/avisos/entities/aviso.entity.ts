@@ -14,9 +14,9 @@ export class Aviso {
   @Column()
   descripcion: string;
 
-  @Column()
+  @Column({type: 'date', nullable: true })
   fecha: Date;
-
+  
   @Column({ nullable: true })
   img?: string; // O con el tipo que necesites
 

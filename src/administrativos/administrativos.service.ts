@@ -41,44 +41,42 @@ export class AdministrativosService {
   async create(createAdministrativoDto: CreateAdministrativoDto,
     file: Express.Multer.File,
     folder: string
-  ): Promise<Administrativo> {
+): Promise<Administrativo> {
     const { nombre, apellido_paterno, apellido_materno, correo_electronico, num_telefono, password, rolId } = createAdministrativoDto;
     try {
-/*       const { rolId, password, correo_electronico,img, ...administrativoData } = createAdministrativoDto; */
+        // Cargar la imagen a Cloudinary
+        const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
+        const imagenUrl = uploadImage.url;
 
-      // Cargar la imagen a Cloudinary
-      const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
-      const imagenUrl = uploadImage.url;
+        // Buscar el rol por ID
+        const rol = await this.rolesRepository.findOne({ where: { id: rolId } });
+        if (!rol) throw new NotFoundException(`Rol con ID ${rolId} no encontrado`);
 
-      // Buscar el rol por ID
-      const rol = await this.rolesRepository.findOne({ where: { id: rolId } });
-      if (!rol) throw new NotFoundException(`Rol con ID ${rolId} no encontrado`);
+        // Crear y guardar el administrativo
+        const administrativo = this.administrativosRepository.create({
+            nombre,
+            apellido_paterno,
+            apellido_materno: apellido_materno || null,  // Si no se pasa, será null
+            correo_electronico,
+            num_telefono,
+            rol,
+            img: imagenUrl, 
+        });
+        const administrativoGuardado = await this.administrativosRepository.save(administrativo);
 
-      // Crear y guardar el administrativo
-      const administrativo = this.administrativosRepository.create({
-        nombre,
-        apellido_paterno,
-        apellido_materno,
-        correo_electronico,
-        num_telefono,
-        rol,
-        img: imagenUrl, 
-      });
-      const administrativoGuardado = await this.administrativosRepository.save(administrativo);
+        // Crear y guardar el usuario relacionado con el administrativo
+        const usuario = this.usuariosRepository.create({
+            correo_electronico,
+            password,
+            administrativo: administrativoGuardado,
+        });
+        await this.usuariosRepository.save(usuario);
 
-      // Crear y guardar el usuario relacionado con el administrativo
-      const usuario = this.usuariosRepository.create({
-        correo_electronico,
-        password,
-        administrativo: administrativoGuardado,
-      });
-      await this.usuariosRepository.save(usuario);
-
-      return administrativoGuardado;
+        return administrativoGuardado;
     } catch (error) {
-      throw new InternalServerErrorException('Error al crear el administrativo');
+        throw new InternalServerErrorException('Error al crear el administrativo');
     }
-  }
+}
 
   
   async update(id: number, updateAdministrativoDto: UpdateAdministrativoDto): Promise<Administrativo> {
