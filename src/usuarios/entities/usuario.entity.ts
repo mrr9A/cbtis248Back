@@ -14,9 +14,9 @@ export class Usuario {
   password: string;
 
   
-  @ManyToOne(() => Responsable, { nullable: true })
+  @ManyToOne(() => Responsable, {eager: true, nullable: true })
   responsable: Responsable;
 
-  @ManyToOne(() => Administrativo, { nullable: true })
+  @ManyToOne(() => Administrativo, {eager: true, nullable: true })
   administrativo: Administrativo;
 }

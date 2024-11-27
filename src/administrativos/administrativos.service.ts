@@ -22,7 +22,7 @@ export class AdministrativosService {
 
   async findAll(): Promise<Administrativo[]> {
     try {
-      return await this.administrativosRepository.find({ relations: ['rol','avisos','usuario'] });
+      return await this.administrativosRepository.find({ relations: ['rol', 'avisos', 'usuario'] });
     } catch (error) {
       throw new InternalServerErrorException('Error al obtener los administrativos');
     }
@@ -30,7 +30,7 @@ export class AdministrativosService {
 
   async findOne(id: number): Promise<Administrativo> {
     try {
-      const administrativo = await this.administrativosRepository.findOne({ where: { id }, relations: ['rol','avisos','usuario'] });
+      const administrativo = await this.administrativosRepository.findOne({ where: { id }, relations: ['rol', 'avisos', 'usuario'] });
       if (!administrativo) throw new NotFoundException(`Administrativo con ID ${id} no encontrado`);
       return administrativo;
     } catch (error) {
@@ -41,44 +41,44 @@ export class AdministrativosService {
   async create(createAdministrativoDto: CreateAdministrativoDto,
     file: Express.Multer.File,
     folder: string
-): Promise<Administrativo> {
+  ): Promise<Administrativo> {
     const { nombre, apellido_paterno, apellido_materno, correo_electronico, num_telefono, password, rolId } = createAdministrativoDto;
     try {
-        // Cargar la imagen a Cloudinary
-        const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
-        const imagenUrl = uploadImage.url;
+      // Cargar la imagen a Cloudinary
+      const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
+      const imagenUrl = uploadImage.url;
 
-        // Buscar el rol por ID
-        const rol = await this.rolesRepository.findOne({ where: { id: rolId } });
-        if (!rol) throw new NotFoundException(`Rol con ID ${rolId} no encontrado`);
+      // Buscar el rol por ID
+      const rol = await this.rolesRepository.findOne({ where: { id: rolId } });
+      if (!rol) throw new NotFoundException(`Rol con ID ${rolId} no encontrado`);
 
-        // Crear y guardar el administrativo
-        const administrativo = this.administrativosRepository.create({
-            nombre,
-            apellido_paterno,
-            apellido_materno: apellido_materno || null,  // Si no se pasa, será null
-            correo_electronico,
-            num_telefono,
-            rol,
-            img: imagenUrl, 
-        });
-        const administrativoGuardado = await this.administrativosRepository.save(administrativo);
+      // Crear y guardar el administrativo
+      const administrativo = this.administrativosRepository.create({
+        nombre,
+        apellido_paterno,
+        apellido_materno: apellido_materno || null,  // Si no se pasa, será null
+        correo_electronico,
+        num_telefono,
+        rol,
+        img: imagenUrl,
+      });
+      const administrativoGuardado = await this.administrativosRepository.save(administrativo);
 
-        // Crear y guardar el usuario relacionado con el administrativo
-        const usuario = this.usuariosRepository.create({
-            correo_electronico,
-            password,
-            administrativo: administrativoGuardado,
-        });
-        await this.usuariosRepository.save(usuario);
+      // Crear y guardar el usuario relacionado con el administrativo
+      const usuario = this.usuariosRepository.create({
+        correo_electronico,
+        password,
+        administrativo: administrativoGuardado,
+      });
+      await this.usuariosRepository.save(usuario);
 
-        return administrativoGuardado;
+      return administrativoGuardado;
     } catch (error) {
-        throw new InternalServerErrorException('Error al crear el administrativo');
+      throw new InternalServerErrorException('Error al crear el administrativo');
     }
-}
+  }
 
-  
+
   async update(id: number, updateAdministrativoDto: UpdateAdministrativoDto): Promise<Administrativo> {
     try {
       // Verifica si el administrativo existe y carga la relación con el usuario

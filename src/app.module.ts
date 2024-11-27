@@ -16,6 +16,7 @@ import { AlumnoResponsableModule } from './alumno-responsable/alumno-responsable
 import { AuthModule } from './auth/auth/auth.module';
 import { CloudinaryModule } from './cloudinary/cloudinary.module';
 import { NotificacionesGateway } from './notificacion/notificaciones.gateway';
+import { CargaMasivaModule } from './carga-masiva/carga-masiva.module';
 
 
 @Module({
@@ -42,7 +43,8 @@ import { NotificacionesGateway } from './notificacion/notificaciones.gateway';
     UsuariosModule,
     AlumnoResponsableModule,
     AuthModule,
-    CloudinaryModule
+    CloudinaryModule,
+    CargaMasivaModule,
   ],
   controllers: [AppController],
   providers: [AppService,NotificacionesGateway],

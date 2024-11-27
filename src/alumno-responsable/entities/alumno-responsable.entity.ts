@@ -7,9 +7,9 @@ export class AlumnoResponsable {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @ManyToOne(() => Alumno, (alumno) => alumno.alumnoResponsables)
+  @ManyToOne(() => Alumno, (alumno) => alumno.alumnoResponsables, { eager: true })
   alumno: Alumno;
 
-  @ManyToOne(() => Responsable, (responsable) => responsable.alumnoResponsables)
+  @ManyToOne(() => Responsable, (responsable) => responsable.alumnoResponsables, { eager: true })
   responsable: Responsable;
 }

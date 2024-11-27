@@ -37,7 +37,7 @@ export class ResponsablesService {
     try {
       const responsable = await this.responsablesRepository.findOne({
         where: { id },
-        relations: ['alumnoResponsables.alumno.grupo', 'alumnoResponsables.alumno.incidencias', 'alumnoResponsables.alumno.grupo.avisos','rol','alumnoResponsables.alumno.incidencias.tipo_incidencia'], // Incluye aquí las relaciones que necesites
+        relations: ['alumnoResponsables.alumno.grupo', 'alumnoResponsables.alumno.incidencias', 'alumnoResponsables.alumno.grupo.avisos', 'rol', 'alumnoResponsables.alumno.incidencias.tipo_incidencia'], // Incluye aquí las relaciones que necesites
       });
 
       if (!responsable) {
@@ -56,10 +56,10 @@ export class ResponsablesService {
     folder: string
   ): Promise<Responsable> {
     const { nombre, apellido_paterno, apellido_materno, correo_electronico, num_telefono, password, rolId, alumnoIds } = createResponsableDto;
-/* console.log('datos',alumnoIds); */
+    /* console.log('datos',alumnoIds); */
 
     try {
-      const alumnoids = JSON.parse(alumnoIds)|| [];
+      const alumnoids = JSON.parse(alumnoIds) || [];
       // Cargar la imagen a Cloudinary
       const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
       const imagenUrl = uploadImage.url;
@@ -119,7 +119,7 @@ export class ResponsablesService {
         relations: ['rol'],
       });
       if (!responsable) throw new NotFoundException(`Responsable con ID ${id} no encontrado`);
-/*       console.log('Responsable encontrado:', responsable); */
+      /*       console.log('Responsable encontrado:', responsable); */
 
       // Actualizar los campos del responsable
       if (nombre) responsable.nombre = nombre;
