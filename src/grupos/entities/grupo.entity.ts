@@ -16,6 +16,9 @@ export class Grupo {
 
   @Column({ length: 100 })
   especialidad: string;
+  
+  @Column({ default: true }) // Estado por defecto `true`
+  estado: boolean;
 
   @OneToMany(() => Alumno, (alumno) => alumno.grupo)
   alumnos: Alumno[];

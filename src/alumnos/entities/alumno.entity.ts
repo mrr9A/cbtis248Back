@@ -29,6 +29,9 @@ export class Alumno {
   @Column({ nullable: true })
   imagen_perfil: string;
 
+  @Column({ default: true }) // Añadir el estado con valor por defecto `true`
+  estado: boolean;
+  
   @ManyToOne(() => Grupo, (grupo) => grupo.alumnos, { eager: false })
   @JoinColumn({ name: 'grupo_id' })
   grupo: Grupo;

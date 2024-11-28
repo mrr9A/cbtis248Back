@@ -1,5 +1,5 @@
 import { Type } from 'class-transformer';
-import { IsNotEmpty, IsEmail, IsString, IsOptional, IsNumber, IsInt } from 'class-validator';
+import { IsNotEmpty, IsEmail, IsString, IsOptional, IsNumber, IsInt, IsBoolean } from 'class-validator';
 
 export class CreateAlumnoDto {
   @IsNotEmpty()
@@ -34,5 +34,8 @@ export class CreateAlumnoDto {
   @IsOptional()
   @IsInt()
   grupoId: number;
-
+  
+  @IsOptional()
+  @IsBoolean()
+  estado?: boolean; // Añadir la propiedad `estado` como opcional
 }

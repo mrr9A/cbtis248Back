@@ -44,7 +44,7 @@ export class AlumnosService {
     folder: string // Añadido para especificar la carpeta de Cloudinary
   ): Promise<Alumno> {
     try {
-      const { grupoId, ...alumnoData } = createAlumnoDto;
+      const { grupoId,estado = true, ...alumnoData } = createAlumnoDto;
   
       // Subir la imagen a Cloudinary
       let imagenUrl: string | null = null;
@@ -56,6 +56,7 @@ export class AlumnosService {
       // Crear el alumno
       const alumno = this.alumnosRepository.create({
         ...alumnoData,
+        estado, // Incluye el estado en la creación del alumno
         imagen_perfil: imagenUrl // Guardar la URL de la imagen en el alumno
       });
   

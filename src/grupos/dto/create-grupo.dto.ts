@@ -1,5 +1,5 @@
 // create-grupo.dto.ts
-import { IsNotEmpty, IsInt, IsString } from 'class-validator';
+import { IsNotEmpty, IsInt, IsString, IsBoolean, IsOptional } from 'class-validator';
 
 export class CreateGrupoDto {
   @IsNotEmpty()
@@ -13,5 +13,9 @@ export class CreateGrupoDto {
   @IsNotEmpty()
   @IsString()
   especialidad: string;
+
+  @IsOptional()
+  @IsBoolean()
+  estado?: boolean; // Es opcional para que si no se envía, tome el valor por defecto de la entidad
 }
 

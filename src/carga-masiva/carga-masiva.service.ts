@@ -26,6 +26,7 @@ export class CargaMasivaService {
     async cargarRoles(data: any[]): Promise<void> {
         const roles = this.rolRepo.create(data);
         await this.rolRepo.save(roles);
+        console.log(`${roles.length} roles cargados correctamente.`);
     }
 
     async cargarAdministrativos(data: any[]): Promise<void> {
@@ -50,11 +51,21 @@ export class CargaMasivaService {
         console.log(`${administrativos.length} administrativos cargados correctamente.`);
     }
 
-
     async cargarGrupos(data: any[]): Promise<void> {
-        const grupos = this.grupoRepo.create(data);
-        await this.grupoRepo.save(grupos);
+        // Procesar el campo 'estado' para asegurarse de que sea booleano
+        const grupos = data.map((item) => {
+            return {
+                ...item,
+                estado: item.estado === 'true' || item.estado === true, // Convertir a booleano
+            };
+        });
+
+        // Crear y guardar los grupos en la base de datos
+        const gruposCreados = this.grupoRepo.create(grupos);
+        await this.grupoRepo.save(gruposCreados);
+        console.log(`${gruposCreados.length} grupos cargados correctamente.`);
     }
+
 
     async cargarAlumnos(data: any[]): Promise<void> {
         const alumnos = [];
@@ -67,9 +78,13 @@ export class CargaMasivaService {
                 throw new Error(`Grupo con ID ${item.grupo_id} no encontrado`);
             }
 
+            // Procesar el estado y convertirlo a booleano
+            const estadoProcesado = item.estado === 'true' || item.estado === true || item.estado === 1;
+
             // Crea el alumno con la relación al grupo
             const alumno = this.alumnoRepo.create({
                 ...item,
+                estado: estadoProcesado, // Asignar el estado procesado
                 grupo, // Asigna la relación al grupo
             });
 
