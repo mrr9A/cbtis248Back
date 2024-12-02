@@ -1,3 +1,4 @@
+import { Type } from 'class-transformer';
 import { IsOptional, IsString, IsEmail, IsInt } from 'class-validator';
 
 export class UpdateAdministrativoDto {
@@ -25,6 +26,7 @@ export class UpdateAdministrativoDto {
   @IsString()
   imagen_perfil?: string;
 
+  @Type(() => Number)
   @IsOptional()
   @IsInt()
   rolId?: number; // Hacer rolId opcional
