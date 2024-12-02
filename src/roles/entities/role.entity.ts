@@ -14,5 +14,5 @@ export class Rol {
   administrativos: Administrativo[];
 
   @OneToMany(() => Responsable, (respon) => respon.rol)
-  responsable: Administrativo[];
+  responsable: Responsable[];
 }

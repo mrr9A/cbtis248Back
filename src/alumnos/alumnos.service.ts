@@ -15,7 +15,7 @@ export class AlumnosService {
     @InjectRepository(Grupo)
     private gruposRepository: Repository<Grupo>,
     private CloudinaryService: CloudinaryService,
-  ) {}
+  ) { }
 
   async findAll(): Promise<Alumno[]> {
     try {
@@ -29,7 +29,7 @@ export class AlumnosService {
     try {
       const alumno = await this.alumnosRepository.findOne({
         where: { id },
-        relations: ['grupo', 'incidencias','incidencias.tipo_incidencia'],
+        relations: ['grupo', 'incidencias', 'incidencias.tipo_incidencia'],
       });
       if (!alumno) throw new NotFoundException(`Alumno con ID ${id} no encontrado`);
       return alumno;
@@ -44,22 +44,22 @@ export class AlumnosService {
     folder: string // Añadido para especificar la carpeta de Cloudinary
   ): Promise<Alumno> {
     try {
-      const { grupoId,estado = true, ...alumnoData } = createAlumnoDto;
-  
+      const { grupoId, estado = true, ...alumnoData } = createAlumnoDto;
+
       // Subir la imagen a Cloudinary
       let imagenUrl: string | null = null;
       if (file) {
         const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
         imagenUrl = uploadImage.url;
       }
-  
+
       // Crear el alumno
       const alumno = this.alumnosRepository.create({
         ...alumnoData,
         estado, // Incluye el estado en la creación del alumno
         imagen_perfil: imagenUrl // Guardar la URL de la imagen en el alumno
       });
-  
+
       // Asignar el grupo si se proporciona un grupoId válido
       if (grupoId) {
         const grupo = await this.gruposRepository.findOne({ where: { id: grupoId } });
@@ -69,7 +69,7 @@ export class AlumnosService {
           console.warn('El grupo no se encontró');
         }
       }
-  
+
       return await this.alumnosRepository.save(alumno);
     } catch (error) {
       console.error('Error al crear el alumno:', error);
@@ -77,19 +77,52 @@ export class AlumnosService {
     }
   }
 
-  async update(id: number, updateAlumnoDto: UpdateAlumnoDto): Promise<Alumno> {
-    const { grupoId, ...alumnoData } = updateAlumnoDto;
-    await this.alumnosRepository.update(id, alumnoData);
-    const alumno = await this.findOne(id);
-  
-    if (grupoId) {
-      const grupo = await this.gruposRepository.findOne({ where: { id: grupoId } });
-      if (grupo) alumno.grupo = grupo;
+  async update(
+    id: number,
+    updateAlumnoDto: UpdateAlumnoDto,
+    file?: Express.Multer.File, // Imagen opcional
+    folder?: string // Carpeta opcional para Cloudinary
+  ): Promise<Alumno> {
+    try {
+      // Buscar el alumno existente
+      const alumno = await this.alumnosRepository.findOne({ where: { id }, relations: ['grupo'] });
+      if (!alumno) {
+        throw new NotFoundException(`Alumno con id ${id} no encontrado`);
+      }
+
+      // Si no se proporciona un archivo, mantenemos el valor actual de imagen_perfil
+      if (!file && !updateAlumnoDto.imagen_perfil) {
+        updateAlumnoDto.imagen_perfil = alumno.imagen_perfil || ''; // Mantén la imagen actual o asigna una cadena vacía si no existe
+      } else if (file && folder) {
+        const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
+        updateAlumnoDto.imagen_perfil = uploadImage.url; // Actualizar la URL de la imagen
+      }
+
+
+
+      // Actualizar los datos del alumno (sin modificar imagen_perfil si no se pasa archivo)
+      const { grupoId, ...alumnoData } = updateAlumnoDto;
+      Object.assign(alumno, alumnoData);
+
+      // Cambiar el grupo si se proporciona un grupoId válido
+      if (grupoId) {
+        const grupo = await this.gruposRepository.findOne({ where: { id: grupoId } });
+        if (grupo) {
+          alumno.grupo = grupo;
+        } else {
+          console.warn('El grupo no se encontró');
+          alumno.grupo = null; // O decide si debe mantenerse el grupo actual
+        }
+      }
+
+      // Guardar la actualización
+      return await this.alumnosRepository.save(alumno);
+    } catch (error) {
+      console.error('Error al actualizar el alumno:', error);
+      throw new InternalServerErrorException('Error al actualizar el alumno');
     }
-  
-    return await this.alumnosRepository.save(alumno);
   }
-  
+
 
   async remove(id: number): Promise<void> {
     try {

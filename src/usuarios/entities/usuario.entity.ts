@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne } from 'typeorm';
 import { Responsable } from 'src/responsables/entities/responsable.entity';
 import { Administrativo } from 'src/administrativos/entities/administrativo.entity';
 
@@ -13,10 +13,9 @@ export class Usuario {
   @Column()
   password: string;
 
-  
-  @ManyToOne(() => Responsable, {eager: true, nullable: true })
+  @OneToOne(() => Responsable, (responsable) => responsable.usuario, { nullable: true })
   responsable: Responsable;
-
-  @ManyToOne(() => Administrativo, {eager: true, nullable: true })
+ 
+  @OneToOne(() => Administrativo, (administrativo) => administrativo.usuario, { nullable: true })
   administrativo: Administrativo;
 }

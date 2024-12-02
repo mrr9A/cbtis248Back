@@ -1,6 +1,5 @@
 // UpdateResponsableDto
 import { IsOptional, IsString, IsEmail, IsInt, IsArray } from 'class-validator';
-
 export class UpdateResponsableDto {
   @IsOptional()
   @IsString()
@@ -34,4 +33,8 @@ export class UpdateResponsableDto {
   @IsInt({ each: true })
   @IsOptional()
   alumnoIds?: number[];
+
+  @IsOptional()
+  @IsString()
+  img?: string;
 }

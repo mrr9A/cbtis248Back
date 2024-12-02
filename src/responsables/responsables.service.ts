@@ -37,7 +37,7 @@ export class ResponsablesService {
     try {
       const responsable = await this.responsablesRepository.findOne({
         where: { id },
-        relations: ['alumnoResponsables.alumno.grupo', 'alumnoResponsables.alumno.incidencias', 'alumnoResponsables.alumno.grupo.avisos', 'rol', 'alumnoResponsables.alumno.incidencias.tipo_incidencia'], // Incluye aquí las relaciones que necesites
+        relations: ['alumnoResponsables.alumno.grupo', 'alumnoResponsables.alumno.incidencias', 'alumnoResponsables.alumno.grupo.avisos', 'rol', 'alumnoResponsables.alumno.incidencias.tipo_incidencia', 'usuario'], // Incluye aquí las relaciones que necesites
       });
 
       if (!responsable) {
@@ -109,78 +109,66 @@ export class ResponsablesService {
     }
   }
 
-  async update(id: number, updateResponsableDto: UpdateResponsableDto): Promise<Responsable> {
+  async update(
+    id: number,
+    updateResponsableDto: UpdateResponsableDto,
+    file?: Express.Multer.File,
+    folder?: string
+  ): Promise<Responsable> {
+    const responsable = await this.responsablesRepository.findOne({
+      where: { id },
+      relations: ['rol', 'alumnoResponsables'],
+    });
+  
+    if (!responsable) {
+      throw new NotFoundException('Responsable no encontrado');
+    }
+  
     const { nombre, apellido_paterno, apellido_materno, correo_electronico, num_telefono, rolId, password, alumnoIds } = updateResponsableDto;
-
+  
     try {
-      console.log('Buscando responsable...');
-      const responsable = await this.responsablesRepository.findOne({
-        where: { id },
-        relations: ['rol'],
-      });
-      if (!responsable) throw new NotFoundException(`Responsable con ID ${id} no encontrado`);
-      /*       console.log('Responsable encontrado:', responsable); */
-
-      // Actualizar los campos del responsable
+      // Actualizar la imagen si se envía un archivo nuevo
+      if (file) {
+        const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
+        responsable.img = uploadImage.url;
+      }
+  
+      // Actualizar los campos opcionales
       if (nombre) responsable.nombre = nombre;
       if (apellido_paterno) responsable.apellido_paterno = apellido_paterno;
       if (apellido_materno) responsable.apellido_materno = apellido_materno;
+      if (correo_electronico) responsable.correo_electronico = correo_electronico;
       if (num_telefono) responsable.num_telefono = num_telefono;
-
-      // Actualizar el rol si es necesario
+  
+      // Actualizar el rol si se proporciona un rolId
       if (rolId) {
         const rol = await this.rolRepository.findOneBy({ id: rolId });
         if (!rol) throw new NotFoundException('Rol no encontrado');
         responsable.rol = rol;
-        console.log('Rol actualizado:', rol);
       }
-
-      // Guardar los cambios en el responsable
-      await this.responsablesRepository.save(responsable);
-
-      // Actualizar o crear el usuario asociado al responsable
-      let usuario = await this.usuariosRepository.findOne({
-        where: { responsable: { id } },
-      });
-
-
-      if (!usuario) {
-        usuario = this.usuariosRepository.create({
-          correo_electronico,
-          password,
-          responsable,
-        });
-        console.log('Usuario creado:', usuario);
-      } else {
-        if (correo_electronico) usuario.correo_electronico = correo_electronico;
-        if (password) usuario.password = password;
-        console.log('Usuario actualizado:', usuario);
-      }
-      await this.usuariosRepository.save(usuario);
-
-      // Actualizar las relaciones de tutoría en la tabla alumno_responsable
-      if (alumnoIds) {
-        console.log('Actualizando relaciones de alumno_responsable...');
-        await this.alumnoResponsableRepository.delete({ responsable: { id } });
-
-        const alumnoResponsables = alumnoIds.map(alumnoId =>
-          this.alumnoResponsableRepository.create({
+  
+      // Actualizar los alumnos asignados
+      if (alumnoIds && alumnoIds.length > 0) {
+        // Eliminar las relaciones actuales
+        await this.alumnoResponsableRepository.delete({ responsable });
+  
+        // Crear nuevas relaciones
+        const nuevasRelaciones = alumnoIds.map(alumnoId => {
+          return this.alumnoResponsableRepository.create({
             responsable,
             alumno: { id: alumnoId },
-          }),
-        );
-        await this.alumnoResponsableRepository.save(alumnoResponsables);
-        console.log('Relaciones actualizadas con los alumnos:', alumnoIds);
+          });
+        });
+        await this.alumnoResponsableRepository.save(nuevasRelaciones);
       }
-
-      return responsable;
+  
+      // Guardar los cambios en la base de datos
+      return await this.responsablesRepository.save(responsable);
     } catch (error) {
-      console.error('Error al actualizar el responsable:', error.message);
       throw new InternalServerErrorException('Error al actualizar el responsable');
     }
   }
-
-
+  
   async remove(id: number): Promise<void> {
     try {
       const result = await this.responsablesRepository.delete(id);

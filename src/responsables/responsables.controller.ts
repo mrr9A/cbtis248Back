@@ -47,14 +47,20 @@ export class ResponsablesController {
     }
   }
 
-  @Patch(':id')
-  async update(@Param('id') id: number, @Body() updateResponsableDto: UpdateResponsableDto) {
-    try {
-      return await this.responsablesService.update(id, updateResponsableDto);
-    } catch (error) {
-      throw new HttpException(error.message, error.status || 500);
+    @Patch(':id')
+    @UseInterceptors(FileInterceptor('file')) // Interceptor para manejar archivos
+    async update(
+      @Param('id') id: number,
+      @Body() updateResponsableDto: UpdateResponsableDto,
+      @UploadedFile() file: Express.Multer.File // Archivo cargado
+    ) {
+      try {
+        const folder = 'responsables'; // Define la carpeta de Cloudinary o tu configuración
+        return await this.responsablesService.update(id, updateResponsableDto, file, folder);
+      } catch (error) {
+        throw new HttpException(error.message, error.status || 500);
+      }
     }
-  }
 
   @Delete(':id')
   async remove(@Param('id') id: number) {
