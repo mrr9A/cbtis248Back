@@ -119,7 +119,7 @@ export class IncidenciasService {
         img: imagenUrl, // Incluir imagen si aplica
         grupos: grupos.map((grupo) => grupo.especialidad), // Nombre o especialidad del grupo
       };
-
+      console.log(payload);
       // Enviar la notificación a cada responsable
       responsables.forEach((responsable) => {
         this.notificacionesGateway.enviarNotificacion(`notificacion-${responsable.id}`, payload);

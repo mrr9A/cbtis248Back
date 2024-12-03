@@ -105,7 +105,6 @@ export class AvisosService {
           .leftJoinAndSelect('alumnoResponsable.alumno', 'alumno') // Relación hacia Alumno
           .where('alumno.grupo = :grupo', { grupo: grupo.id })
           .getMany();
-
         responsables.push(...responsablesGrupo);
       }
 
@@ -117,7 +116,7 @@ export class AvisosService {
         img: imagenUrl,
         grupos: grupos.map((grupo) => grupo.especialidad),
       };
-
+      console.log(payload);
       // Enviar la notificación a cada responsable
       responsables.forEach((responsable) => {
         this.notificacionesGateway.enviarNotificacion(
@@ -125,53 +124,12 @@ export class AvisosService {
           payload,
         );
       });
-
       return avisoGuardado;
     } catch (error) {
       console.error(error); // Para depuración
       throw new InternalServerErrorException('Error al crear el aviso');
     }
   }
-
-
-/* 
-  async update(id: number, updateAvisoDto: UpdateAvisoDto): Promise<Aviso> {
-    try {
-      const { grupoIds, fecha, ...avisoData } = updateAvisoDto;
-
-      // Busca el aviso existente
-      const aviso = await this.avisosRepository.findOne({ where: { id }, relations: ['grupos'] });
-      if (!aviso) {
-        throw new NotFoundException(`Aviso con ID ${id} no encontrado`);
-      }
-
-      // Actualiza los datos básicos
-      Object.assign(aviso, avisoData);
-
-      // Convertir `fecha` a Date si se proporciona
-      if (fecha) {
-        const fechaConvertida = new Date(fecha);
-        if (isNaN(fechaConvertida.getTime())) {
-          throw new BadRequestException('Formato de fecha inválido');
-        }
-        aviso.fecha = fechaConvertida;
-      }
-
-      // Actualizar la relación de grupos si se proporciona grupoIds
-      if (grupoIds) {
-        const grupos = await this.gruposRepository.findByIds(grupoIds);
-        if (grupos.length !== grupoIds.length) {
-          throw new NotFoundException('Uno o más grupos no fueron encontrados');
-        }
-        aviso.grupos = grupos;
-      }
-
-      return await this.avisosRepository.save(aviso);
-    } catch (error) {
-      throw new InternalServerErrorException('Error al actualizar el aviso');
-    }
-  }
- */
 
   async update(
     id: string,
@@ -180,13 +138,13 @@ export class AvisosService {
     folder: string,
   ): Promise<Aviso> {
     const idNumber = parseInt(id, 10);  // Convertir id a number
-  
+
     if (isNaN(idNumber)) {
       throw new BadRequestException('El ID del aviso no es válido');
     }
-  
+
     const { nombre, descripcion, fecha, grupoIds, administrativoId } = updateAvisoDto;
-  
+
     // Verificar y asegurar que grupoIds sea un arreglo de números
     let grupoIdsArray: number[] = [];
     try {
@@ -200,16 +158,16 @@ export class AvisosService {
     } catch (error) {
       throw new BadRequestException('El formato de grupoIds no es válido');
     }
-  
+
     const aviso = await this.avisosRepository.findOne({
       where: { id: idNumber },
       relations: ['grupos', 'administrativo'],
     });
-  
+
     if (!aviso) {
       throw new NotFoundException(`Aviso con ID ${idNumber} no encontrado`);
     }
-  
+
     // Actualizar los datos del aviso
     if (nombre) aviso.nombre = nombre;
     if (descripcion) aviso.descripcion = descripcion;
@@ -217,14 +175,14 @@ export class AvisosService {
       // Convertir la fecha recibida como string a un objeto Date
       aviso.fecha = new Date(fecha);
     }
-  
+
     // Subir la imagen (si hay archivo)
     if (file) {
       const uploadImage = await this.CloudinaryService.uploadFile(file, folder);
       const imagenUrl = uploadImage.url;
       aviso.img = imagenUrl; // Actualizar la imagen
     }
-  
+
     // Buscar los grupos correspondientes a los IDs
     let grupos: Grupo[] = [];
     if (grupoIdsArray && grupoIdsArray.length > 0) {
@@ -234,7 +192,7 @@ export class AvisosService {
       }
     }
     aviso.grupos = grupos;
-  
+
     // Buscar el administrativo por ID
     if (administrativoId) {
       const administrativo = await this.administrativosRepository.findOne({
@@ -245,10 +203,10 @@ export class AvisosService {
       }
       aviso.administrativo = administrativo;
     }
-  
+
     // Guardar el aviso actualizado
     const avisoActualizado = await this.avisosRepository.save(aviso);
-  
+
     // **Enviar notificaciones a los responsables**
     // Obtener los responsables relacionados con los grupos
     const responsables: Responsable[] = [];
@@ -259,10 +217,10 @@ export class AvisosService {
         .leftJoinAndSelect('alumnoResponsable.alumno', 'alumno')
         .where('alumno.grupo = :grupo', { grupo: grupo.id })
         .getMany();
-  
+
       responsables.push(...responsablesGrupo);
     }
-  
+
     // Crear el payload de la notificación
     const payload = {
       titulo: 'Aviso Actualizado',
@@ -271,7 +229,7 @@ export class AvisosService {
       img: avisoActualizado.img,
       grupos: grupos.map((grupo) => grupo.especialidad),
     };
-  
+
     // Enviar la notificación a cada responsable
     responsables.forEach((responsable) => {
       this.notificacionesGateway.enviarNotificacion(
@@ -279,14 +237,14 @@ export class AvisosService {
         payload,
       );
     });
-  
+
     return avisoActualizado;
-  } catch (error) {
+  } catch(error) {
     console.error(error); // Para depuración
     throw new InternalServerErrorException('Error al actualizar el aviso');
   }
-  
-  
+
+
 
   async remove(id: number): Promise<void> {
     try {
