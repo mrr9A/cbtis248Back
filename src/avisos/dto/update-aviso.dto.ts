@@ -1,5 +1,5 @@
 // update-aviso.dto.ts
-import { IsOptional, IsString, IsDate, IsArray, IsInt } from 'class-validator';
+import { IsOptional, IsString, IsDate, IsArray, IsInt, IsNumber } from 'class-validator';
 
 export class UpdateAvisoDto {
   @IsOptional()
@@ -15,7 +15,10 @@ export class UpdateAvisoDto {
   fecha?: string;
 
   @IsOptional()
-  @IsArray()
-  @IsInt({ each: true })
-  grupoIds?: number[];
+  @IsString()
+  grupoIds: string;
+
+  @IsOptional()
+  @IsNumber()
+  administrativoId?: number;
 }
