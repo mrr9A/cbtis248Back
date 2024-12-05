@@ -117,7 +117,7 @@ export class AvisosService {
         grupos: grupos.map((grupo) => grupo.especialidad),
       };
       console.log(payload);
-      // Enviar la notificación a cada responsable
+      // Enviar la notificación a cada responsable del alumno
       responsables.forEach((responsable) => {
         this.notificacionesGateway.enviarNotificacion(
           `notificacion-${responsable.id}`,
